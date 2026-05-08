@@ -1,0 +1,44 @@
+---
+- name: Security hardening for Raspberry Pi 5
+  hosts: raspi5
+  become: yes
+  gather_facts: no
+
+  tasks:
+    - name: Install security packages
+      ansible.builtin.apt:
+        name:
+          - ufw
+          - fail2ban
+          - unattended-upgrades
+        state: present
+        update_cache: yes
+
+    - name: Configure ufw — default deny incoming traffic
+      community.general.ufw:
+        direction: incoming
+        policy: deny
+
+    - name: Configure ufw — allow SSH
+      community.general.ufw:
+        rule: allow
+        port: ssh
+        proto: tcp
+
+    - name: Enable ufw
+      community.general.ufw:
+        state: enabled
+
+    - name: Enable unattended-upgrades for security updates
+      ansible.builtin.copy:
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+        content: |
+          APT::Periodic::Update-Package-Lists "1";
+          APT::Periodic::Unattended-Upgrade "1";
+        mode: "644"
+
+    - name: Ensure fail2ban is running and enabled on boot
+      ansible.builtin.service:
+        name: fail2ban
+        state: started
+        enabled: yes

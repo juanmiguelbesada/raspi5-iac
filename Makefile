@@ -1,12 +1,11 @@
-.PHONY: ansible-ping ansible-setup ansible-list
+.PHONY: ansible ansible-setup ansible-harden
 
 ANSIBLE_DIR := ansible
 
-ansible-ping:
-	cd $(ANSIBLE_DIR) && ansible all -m ping
+ansible: ansible-setup ansible-harden
 
 ansible-setup:
 	cd $(ANSIBLE_DIR) && ansible-playbook playbooks/01-initial-setup.yml --ask-become-pass
 
-ansible-list:
-	cd $(ANSIBLE_DIR) && ansible-inventory --list
+ansible-harden:
+	cd $(ANSIBLE_DIR) && ansible-playbook playbooks/02-security-hardening.yml

@@ -106,6 +106,13 @@ A playbook is a YAML file containing one or more **plays**. A play maps a set of
         line: 'PasswordAuthentication no'
       notify: restart sshd
 
+    - name: Grant juanmi passwordless sudo
+      ansible.builtin.copy:
+        dest: /etc/sudoers.d/juanmi
+        content: "juanmi ALL=(ALL) NOPASSWD: ALL\n"
+        mode: "440"
+        validate: /usr/sbin/visudo -csf %s
+
   handlers:
     - name: restart sshd
       ansible.builtin.service:
@@ -179,6 +186,20 @@ ansible.builtin.lineinfile:
 
 **What this does:** Finds any line matching `PasswordAuthentication` (commented or not) and replaces it with `PasswordAuthentication no`. If the line doesn't exist at all, it appends it.
 
+#### Task 4: Passwordless sudo
+
+```yaml
+ansible.builtin.copy:
+  dest: /etc/sudoers.d/juanmi
+  content: "juanmi ALL=(ALL) NOPASSWD: ALL\n"
+  mode: "440"
+  validate: /usr/sbin/visudo -csf %s
+```
+
+Creates a drop-in file in `/etc/sudoers.d/` allowing `juanmi` to run `sudo` without a password. The `validate` parameter runs `visudo -csf` to check syntax before applying — if the file is malformed, Ansible refuses to proceed, preventing a sudo lockout.
+
+**Why this matters:** Without this, every Ansible playbook run would need `--ask-become-pass`. After this task completes once, all future playbooks run without any password prompt.
+
 ### The Notify/Handler Pattern
 
 ```yaml
@@ -233,6 +254,7 @@ make ansible-list      # Show parsed inventory
 
 1. **System is up to date.** All packages upgraded, unused packages removed.
 2. **SSH key is deployed.** Your laptop's public key is in `~juanmi/.ssh/authorized_keys`.
-3. **Password authentication is disabled.** Only key-based SSH connections are accepted. `PasswordAuthentication no` means anyone trying to connect with a password will be rejected, even if they know the password.
+3. **Password authentication is disabled.** Only key-based SSH connections are accepted.
+4. **Passwordless sudo is enabled.** `juanmi` can run sudo without a password — future Ansible playbooks run without `--ask-become-pass`.
 
-After running, the only way to SSH into the Pi is with a matching private key. This is the single most important security measure for any SSH-exposed server.
+After running, SSH access is key-only, and Ansible playbooks no longer prompt for a sudo password.

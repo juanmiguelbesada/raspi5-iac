@@ -24,6 +24,13 @@
         line: 'PasswordAuthentication no'
       notify: restart sshd
 
+    - name: Grant juanmi passwordless sudo
+      ansible.builtin.copy:
+        dest: /etc/sudoers.d/juanmi
+        content: "juanmi ALL=(ALL) NOPASSWD: ALL\n"
+        mode: "440"
+        validate: /usr/sbin/visudo -csf %s
+
   handlers:
     - name: restart sshd
       ansible.builtin.service:
