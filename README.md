@@ -1,26 +1,40 @@
-# JuanMi's Raspi5 IaC
+# Raspi5 homelab
 
-Single source of truth for my Raspberry Pi 5 infrastructure, built as a hands-on DevOps training project.
+Single source of truth for my Raspberry Pi 5 — k3s cluster with GitOps.
+
+## Provisioning flow
+
+```
+Ansible ──► Pi OS setup → k3s single-node cluster
+Terraform ──► ArgoCD (infra-only, no app logic)
+ArgoCD ──► syncs gitops/ → creates deployments, services, ingresses
+```
 
 ## Local setup
 
 ```bash
-make install # Install local dependencies (ansible, kubectl, terraform)
+make install                  # brew + ansible-galaxy deps
+cp terraform/terraform.tfvars.example terraform/terraform.tfvars
+# Edit terraform.tfvars → add your GitHub PAT (repo:contents=read)
 ```
 
-## Useful commands
+## Commands
 
-### Ansible — server provisioning
+| Step | Command | What it does |
+|------|---------|--------------|
+| Provision Pi | `make ansible` | OS bootstrap → security → k3s |
+| Deploy ArgoCD | `make terraform` | Init → plan → apply (installs ArgoCD on k3s) |
+| Get admin password | `make argocd-password` | Prints ArgoCD admin password |
+| Open UI | `open http://argocd.192.168.1.155.sslip.io` | ArgoCD dashboard |
 
-```bash
-make ansible        # full setup (initial + hardening + k3s)
-```
+## Add a new app
 
-### Terraform — k3s workloads
+1. Create a directory under `gitops/` with your manifests and a `kustomization.yaml`
+2. Add an `applications` entry in `terraform/main.tf` inside the `helm_release.hello_world` values
+3. `make terraform`
+4. ArgoCD syncs automatically
 
-```bash
-make terraform-init    # download providers
-make terraform-plan    # preview changes
-make terraform-apply   # deploy apps to k3s
-make terraform-destroy # tear down all apps
-```
+## Access
+
+- **ArgoCD**: `http://argocd.192.168.1.155.sslip.io` (admin / `make argocd-password`)
+- **hello-world**: `http://hello-world.192.168.1.155.sslip.io`

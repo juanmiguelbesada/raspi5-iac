@@ -1,3 +1,5 @@
+Never commit or push without explicit permission.
+
 Keep it minimal — only add what's needed, no premature extras.
 
 Default unless specified, needed, or known bad-practice — applies to

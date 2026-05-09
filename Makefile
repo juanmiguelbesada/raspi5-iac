@@ -25,7 +25,9 @@ ansible-k3s:
 
 TERRAFORM_DIR := terraform
 
-.PHONY: terraform-init terraform-plan terraform-apply terraform-destroy
+.PHONY: terraform terraform-init terraform-plan terraform-apply terraform-destroy
+
+terraform: terraform-init terraform-plan terraform-apply
 
 terraform-init:
 	terraform -chdir=$(TERRAFORM_DIR) init
