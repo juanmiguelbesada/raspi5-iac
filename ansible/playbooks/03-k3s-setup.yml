@@ -1,0 +1,81 @@
+---
+- name: Setup k3s on Raspberry Pi 5
+  hosts: raspi5
+  become: yes
+  gather_facts: no
+
+  tasks:
+    - name: Check if memory cgroup is active on running system
+      ansible.builtin.shell: |
+        if [ -d /sys/fs/cgroup/memory ]; then
+          exit 0
+        elif [ -f /sys/fs/cgroup/cgroup.controllers ]; then
+          grep -q memory /sys/fs/cgroup/cgroup.controllers && exit 0 || exit 1
+        else
+          exit 1
+        fi
+      register: cgroup_active
+      changed_when: false
+      ignore_errors: yes
+
+    - name: Enable cgroup memory in kernel cmdline
+      ansible.builtin.lineinfile:
+        path: /boot/firmware/cmdline.txt
+        regexp: ^(?!.*cgroup_memory=1)(.*)$
+        line: \1 cgroup_memory=1 cgroup_enable=memory
+        backrefs: yes
+      when: cgroup_active is failed
+
+    - name: Reboot to apply cgroup changes
+      ansible.builtin.reboot:
+      when: cgroup_active is failed
+
+    - name: Ensure UFW allows k3s API server
+      community.general.ufw:
+        rule: allow
+        port: "6443"
+        proto: tcp
+
+    - name: Install k3s
+      ansible.builtin.shell:
+        cmd: curl -sfL https://get.k3s.io | sh -
+        creates: /usr/local/bin/k3s
+
+    - name: Ensure kubeconfig is readable by juanmi
+      ansible.builtin.file:
+        path: /etc/rancher/k3s/k3s.yaml
+        mode: "644"
+
+    - name: Fetch kubeconfig to local machine and patch server IP
+      block:
+        - name: Fetch raw kubeconfig from Pi
+          ansible.builtin.fetch:
+            src: /etc/rancher/k3s/k3s.yaml
+            dest: /tmp/raspi5-k3s.yaml
+            flat: yes
+
+        - name: Patch kubeconfig server IP
+          ansible.builtin.replace:
+            path: /tmp/raspi5-k3s.yaml
+            regexp: "https://127\\.0\\.0\\.1:6443"
+            replace: "https://192.168.1.155:6443"
+          delegate_to: localhost
+          become: no
+
+        - name: Ensure ~/.kube directory exists
+          ansible.builtin.file:
+            path: ~/.kube
+            state: directory
+            mode: "0755"
+          delegate_to: localhost
+          become: no
+
+        - name: Write kubeconfig to ~/.kube/config
+          ansible.builtin.copy:
+            src: /tmp/raspi5-k3s.yaml
+            dest: ~/.kube/config
+            mode: "0600"
+            backup: yes
+          delegate_to: localhost
+          become: no
+      ignore_errors: yes
