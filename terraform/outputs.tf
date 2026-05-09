@@ -1,3 +1,3 @@
-output "hello-world_hostname" {
-  value = module.hello-world.ingress_hostname
+output "argocd_url" {
+  value = "http://argocd.192.168.1.155.sslip.io"
 }
