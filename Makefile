@@ -1,11 +1,15 @@
-.PHONY: install ansible ansible-setup ansible-harden ansible-k3s
+# ─── Dependencies ────────────────────────────────────────────
+
+.PHONY: install
+install:
+	brew install ansible kubectl terraform
+	ansible-galaxy collection install community.general
+
+# ─── Ansible ─────────────────────────────────────────────────
 
 ANSIBLE_DIR := ansible
 
-install:
-	brew install ansible kubectl
-	ansible-galaxy collection install community.general
-
+.PHONY: ansible ansible-setup ansible-harden ansible-k3s
 ansible: ansible-setup ansible-harden ansible-k3s
 
 ansible-setup:
@@ -16,3 +20,21 @@ ansible-harden:
 
 ansible-k3s:
 	cd $(ANSIBLE_DIR) && ansible-playbook playbooks/03-k3s-setup.yml
+
+# ─── Terraform ───────────────────────────────────────────────
+
+TERRAFORM_DIR := terraform
+
+.PHONY: terraform-init terraform-plan terraform-apply terraform-destroy
+
+terraform-init:
+	terraform -chdir=$(TERRAFORM_DIR) init
+
+terraform-plan:
+	terraform -chdir=$(TERRAFORM_DIR) plan
+
+terraform-apply:
+	terraform -chdir=$(TERRAFORM_DIR) apply -auto-approve
+
+terraform-destroy:
+	terraform -chdir=$(TERRAFORM_DIR) destroy -auto-approve
