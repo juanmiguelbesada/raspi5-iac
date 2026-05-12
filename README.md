@@ -7,7 +7,7 @@ Single source of truth for my Raspberry Pi 5 — k3s cluster with GitOps.
 ```
 Ansible ──► Pi OS setup → k3s single-node cluster
 Terraform ──► ArgoCD (infra-only, no app logic)
-ArgoCD ──► syncs gitops/ → creates deployments, services, ingresses
+ArgoCD ──► syncs apps/ → creates deployments, services, ingresses
 ```
 
 ## Local setup
@@ -29,8 +29,8 @@ cp terraform/terraform.tfvars.example terraform/terraform.tfvars
 
 ## Add a new app
 
-1. Create a directory under `gitops/` with your manifests and a `kustomization.yaml`
-2. Add an `applications` entry in `terraform/main.tf` inside the `helm_release.hello_world` values
+1. Create a directory under `apps/` with your manifests and a `kustomization.yaml`
+2. Add an `applications` entry in `terraform/main.tf` inside the `helm_release.apps` values
 3. `make terraform`
 4. ArgoCD syncs automatically
 
