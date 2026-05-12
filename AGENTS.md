@@ -12,3 +12,6 @@ Restore defaults before turning it back off.
 
 - Use Context7 MCP to fetch latest docs for any library, framework, CLI tool,
 or cloud service — don't rely on training data for API syntax or setup steps.
+
+- Docs code snippets should include useful inline comments explaining what each
+part does.

@@ -30,9 +30,9 @@ cp terraform/terraform.tfvars.example terraform/terraform.tfvars
 ## Add a new app
 
 1. Create a directory under `apps/` with your manifests and a `kustomization.yaml`
-2. Add an `applications` entry in `terraform/main.tf` inside the `helm_release.apps` values
-3. `make terraform`
-4. ArgoCD syncs automatically
+2. Commit and push to `main`
+
+See [`docs/argocd.md`](docs/argocd.md) for details on how Application discovery works.
 
 ## Access
 

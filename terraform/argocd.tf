@@ -39,7 +39,7 @@ resource "kubernetes_secret_v1" "repo_raspi5" {
 
   data = {
     type     = "git"
-    url      = "https://github.com/juanmiguelbesada/raspi5.git"
+    url      = local.repo_url
     username = "juanmiguelbesada"
     password = var.github_token
   }

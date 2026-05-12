@@ -184,7 +184,8 @@ Use locals to avoid repeating an expression across resources — they're compute
 
 ```hcl
 locals {
-  domain = "192.168.1.155.sslip.io"                    # computed once, used many times
+  domain   = "192.168.1.155.sslip.io"                  # computed once, used many times
+  repo_url = "https://github.com/juanmiguelbesada/raspi5.git"  # used by ArgoCD repo secret + ApplicationSet
 }
 
 resource "helm_release" "argocd" {
@@ -203,7 +204,7 @@ resource "helm_release" "argocd" {
 terraform/
 ├── main.tf                   # terraform block, providers, locals
 ├── argocd.tf                 # ArgoCD Helm release + repo secret
-├── apps.tf                   # app-of-apps (creates Application resources)
+├── apps.tf                   # ApplicationSet (generates Applications from apps/*)
 ├── variables.tf              # input variable declarations
 └── terraform.tfvars          # variable values (gitignored)
 ```
@@ -256,43 +257,60 @@ resource "kubernetes_secret_v1" "repo_raspi5" {
 
   data = {
     type     = "git"
-    url      = "https://github.com/juanmiguelbesada/raspi5.git"
+    url      = local.repo_url                           # from locals in main.tf
     username = "juanmiguelbesada"
     password = var.github_token                         # PAT from terraform.tfvars
   }
 }
 ```
 
-### App-of-apps (`apps.tf`)
+### Apps (`apps.tf`)
+
+This resource tells ArgoCD to deploy everything in `apps/`. The chart creates
+an **ApplicationSet** with a **git directory generator** — one `Application`
+per subdirectory. See [`docs/argocd.md`](argocd.md) for more details.
 
 ```hcl
 resource "helm_release" "apps" {
-  depends_on = [helm_release.argocd, kubernetes_secret_v1.repo_raspi5]
+  depends_on = [helm_release.argocd, kubernetes_secret_v1.repo_raspi5]  # wait for ArgoCD + repo secret
   name       = "apps"
   repository = "https://argoproj.github.io/argo-helm"
-  chart      = "argocd-apps"                           # creates Application resources
+  chart      = "argocd-apps"                           # creates Application/ApplicationSet resources
   namespace  = "argocd"
 
   values = [yamlencode({
-    applications = {
-      hello-world = {
-        namespace = "argocd"
-        project   = "default"
-        source = {
-          repoURL        = "https://github.com/juanmiguelbesada/raspi5.git"
-          targetRevision = "HEAD"
-          path           = "apps/hello-world"         # manifests live here
-        }
-        destination = {
-          server    = "https://kubernetes.default.svc"
-          namespace = "hello-world"
-        }
-        syncPolicy = {
-          automated = {
-            prune    = true                            # delete resources removed from git
-            selfHeal = true                            # revert manual changes
+    applicationSets = {                                # one or more ApplicationSets to generate
+      apps = {                                         # name of the ApplicationSet resource
+        generators = [{                                # list of generators (produce parameter sets)
+          git = {                                      # git directory generator: scans repo dirs
+            repoURL      = local.repo_url               # from locals in main.tf
+            revision     = "HEAD"
+            directories  = [{ path = "apps/*" }]       # every subdirectory under apps/
           }
-          syncOptions = ["CreateNamespace=true"]
+        }]
+        template = {                                   # parameterized Application template
+          metadata = {
+            name = "{{path.basename}}"                 # e.g. "hello-world" from apps/hello-world
+          }
+          spec = {
+            project = "default"
+            source = {
+              repoURL        = local.repo_url           # from locals in main.tf
+              targetRevision = "HEAD"
+              path           = "{{path}}"              # e.g. "apps/hello-world"
+            }
+            destination = {
+              server    = "https://kubernetes.default.svc"
+              namespace = "{{path.basename}}"          # one namespace per app, matching dir name
+            }
+            syncPolicy = {
+              automated = {
+                prune    = true                        # delete K8s resources removed from Git
+                selfHeal = true                        # revert manual changes to match Git
+              }
+              syncOptions = ["CreateNamespace=true"]   # auto-create namespace if missing
+            }
+          }
         }
       }
     }
@@ -300,17 +318,4 @@ resource "helm_release" "apps" {
 }
 ```
 
-This uses the `argocd-apps` chart — a Helm chart that generates ArgoCD `Application` resources from a values map. Each entry under `applications` points to a subdirectory in `apps/` where the actual Kubernetes manifests (deployments, services, ingresses) live. This pattern is called **app of apps**: one umbrella chart defines all child apps.
-
-### Adding a new app
-
-1. Create a directory under `apps/` with your manifests and a `kustomization.yaml`:
-   ```
-   apps/my-app/
-   ├── kustomization.yaml
-   ├── deployment.yaml
-   └── service.yaml
-   ```
-2. Add an entry under `applications` in the `helm_release.apps` values, pointing to the new path
-3. Run `make terraform` — Terraform updates the ArgoCD Application resources
-4. ArgoCD detects the new Application and syncs automatically
+Net result: **every subdirectory in `apps/` automatically becomes an ArgoCD Application**. No per-app Terraform config needed.

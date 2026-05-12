@@ -6,29 +6,38 @@ resource "helm_release" "apps" {
   namespace  = "argocd"
 
   values = [yamlencode({
-    applications = {
-      hello-world = {
-        namespace = "argocd"
-        additionalAnnotations = {
-          "helm.sh/resource-policy" = "keep"
-        }
-        finalizers = ["resources-finalizer.argocd.argoproj.io"]
-        project = "default"
-        source = {
-          repoURL        = "https://github.com/juanmiguelbesada/raspi5.git"
-          targetRevision = "HEAD"
-          path           = "apps/hello-world"
-        }
-        destination = {
-          server    = "https://kubernetes.default.svc"
-          namespace = "hello-world"
-        }
-        syncPolicy = {
-          automated = {
-            prune    = true
-            selfHeal = true
+    applicationSets = {
+      apps = {
+        generators = [{
+          git = {
+            repoURL      = local.repo_url
+            revision     = "HEAD"
+            directories  = [{ path = "apps/*" }]
           }
-          syncOptions = ["CreateNamespace=true"]
+        }]
+        template = {
+          metadata = {
+            name = "{{path.basename}}"
+          }
+          spec = {
+            project = "default"
+            source = {
+              repoURL        = local.repo_url
+              targetRevision = "HEAD"
+              path           = "{{path}}"
+            }
+            destination = {
+              server    = "https://kubernetes.default.svc"
+              namespace = "{{path.basename}}"
+            }
+            syncPolicy = {
+              automated = {
+                prune    = true
+                selfHeal = true
+              }
+              syncOptions = ["CreateNamespace=true"]
+            }
+          }
         }
       }
     }

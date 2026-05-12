@@ -29,5 +29,6 @@ provider "helm" {
 }
 
 locals {
-  domain = "192.168.1.155.sslip.io"
+  domain   = "192.168.1.155.sslip.io"
+  repo_url = "https://github.com/juanmiguelbesada/raspi5.git"
 }
