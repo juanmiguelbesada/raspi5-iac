@@ -30,7 +30,7 @@ TERRAFORM_DIR := terraform
 terraform: terraform-init terraform-plan terraform-apply
 
 terraform-init:
-	terraform -chdir=$(TERRAFORM_DIR) init
+	terraform -chdir=$(TERRAFORM_DIR) init -migrate-state
 
 terraform-plan:
 	terraform -chdir=$(TERRAFORM_DIR) plan
