@@ -7,7 +7,7 @@ resource "helm_release" "argocd" {
 
   values = [yamlencode({
     global = {
-      domain = "argocd.${local.domain}"
+      domain = "argocd.${local.private_domain}"
     }
     configs = {
       params = {
@@ -18,7 +18,7 @@ resource "helm_release" "argocd" {
       ingress = {
         enabled          = true
         ingressClassName = "traefik"
-        hosts = ["argocd.${local.domain}"]
+        hosts            = ["argocd.${local.private_domain}"]
       }
     }
   })]

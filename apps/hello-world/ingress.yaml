@@ -6,7 +6,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: hello-world.192.168.1.155.sslip.io
+  - host: hello-world.raspi5.juanmiguelbesada.com
     http:
       paths:
       - path: /

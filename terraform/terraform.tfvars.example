@@ -1,1 +1,3 @@
-github_token = "github_pat_..."
+github_token          = "github_pat_..."
+cloudflare_api_token  = "..."  # Cloudflare API token with Tunnel:Edit, DNS:Edit, Zone:Read
+cloudflare_account_id = "..."  # Account ID from Cloudflare dashboard

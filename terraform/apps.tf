@@ -10,9 +10,9 @@ resource "helm_release" "apps" {
       apps = {
         generators = [{
           git = {
-            repoURL      = local.repo_url
-            revision     = "HEAD"
-            directories  = [{ path = "apps/*" }]
+            repoURL     = local.repo_url
+            revision    = "HEAD"
+            directories = [{ path = "apps/*" }]
           }
         }]
         template = {
