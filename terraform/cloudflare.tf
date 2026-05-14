@@ -1,7 +1,3 @@
-locals {
-  cloudflare_zone_name = "juanmiguelbesada.com"
-}
-
 # Tunnel secret used to authenticate this tunnel with the Cloudflare edge
 # Must be at least 32 bytes, provided as base64
 resource "random_password" "tunnel_secret" {
@@ -40,14 +36,15 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "main" {
 # Look up the Cloudflare zone by domain name
 data "cloudflare_zone" "main" {
   filter = {
-    name = local.cloudflare_zone_name
+    name = local.public_domain
   }
 }
 
-# Wildcard CNAME so every *.raspi5.juanmiguelbesada.com resolves through the tunnel
+# Wildcard CNAME so every *.juanmiguelbesada.com resolves through the tunnel
+# Exact records (e.g. github.juanmiguelbesada.com) override the wildcard
 resource "cloudflare_dns_record" "wildcard" {
   zone_id = data.cloudflare_zone.main.id
-  name    = "*.raspi5"
+  name    = "*"
   type    = "CNAME"
   content = "${cloudflare_zero_trust_tunnel_cloudflared.main.id}.cfargotunnel.com"
   proxied = true
