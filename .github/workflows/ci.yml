@@ -15,7 +15,7 @@ jobs:
     name: 🔍 Terraform Validate
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: hashicorp/setup-terraform@v4
       - run: terraform -chdir=terraform init -backend=false
       - run: make terraform-validate
@@ -24,8 +24,8 @@ jobs:
     name: 📐 Terraform Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: terraform-linters/setup-tflint@v5
+      - uses: actions/checkout@v5
+      - uses: terraform-linters/setup-tflint@v6
       - run: tflint --chdir=terraform --init
       - run: make terraform-lint
 
@@ -54,8 +54,8 @@ jobs:
     name: 🚨 Format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
       - run: npm install -g prettier
       - uses: hashicorp/setup-terraform@v4
       - run: make format
