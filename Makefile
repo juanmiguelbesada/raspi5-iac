@@ -25,7 +25,7 @@ ansible-k3s:
 
 TERRAFORM_DIR := terraform
 
-.PHONY: terraform terraform-init terraform-plan terraform-apply terraform-destroy
+.PHONY: terraform terraform-init terraform-plan terraform-apply terraform-destroy terraform-format
 
 terraform: terraform-init terraform-plan terraform-apply
 
@@ -40,6 +40,9 @@ terraform-apply:
 
 terraform-destroy:
 	terraform -chdir=$(TERRAFORM_DIR) destroy -auto-approve
+
+terraform-format:
+	terraform -chdir=$(TERRAFORM_DIR) fmt
 
 # ─── ArgoCD ──────────────────────────────────────────────────
 
