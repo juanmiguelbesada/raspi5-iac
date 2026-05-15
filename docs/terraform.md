@@ -7,6 +7,7 @@ Website: [terraform.io](https://www.terraform.io) — Docs: [developer.hashicorp
 **Infrastructure as Code** tool. Declare cloud resources (servers, DNS, K8s releases) in `.tf` files, it provisions them.
 
 Three traits:
+
 - **Declarative** — write desired state, not steps
 - **Provider-based** — one provider per platform (AWS, Kubernetes, Helm...)
 - **State-driven** — `terraform.tfstate` tracks what exists

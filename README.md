@@ -20,12 +20,12 @@ cp terraform/terraform.tfvars.example terraform/terraform.tfvars
 
 ## Commands
 
-| Step | Command | What it does |
-|------|---------|--------------|
-| Provision Pi | `make ansible` | OS bootstrap → security → k3s |
-| Deploy ArgoCD | `make terraform` | Init → plan → apply (installs ArgoCD on k3s) |
-| Get admin password | `make argocd-password` | Prints ArgoCD admin password |
-| Open UI | `open http://argocd.192.168.1.155.sslip.io` | ArgoCD dashboard |
+| Step               | Command                                     | What it does                                 |
+| ------------------ | ------------------------------------------- | -------------------------------------------- |
+| Provision Pi       | `make ansible`                              | OS bootstrap → security → k3s                |
+| Deploy ArgoCD      | `make terraform`                            | Init → plan → apply (installs ArgoCD on k3s) |
+| Get admin password | `make argocd-password`                      | Prints ArgoCD admin password                 |
+| Open UI            | `open http://argocd.192.168.1.155.sslip.io` | ArgoCD dashboard                             |
 
 ## Add a new app
 

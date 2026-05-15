@@ -71,7 +71,7 @@ format-fix: terraform-format
 	prettier --write .
 
 security-check:
-	trivy config terraform/ apps/
+	trivy config .
 
 lint: terraform-validate ansible-lint terraform-lint security-check
 
