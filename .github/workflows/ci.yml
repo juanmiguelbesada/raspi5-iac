@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: aquasecurity/setup-trivy@v0.2.6
-      - run: trivy config terraform/ apps/
+      - run: trivy config .
 
   # ─── Ansible ─────────────────────────────────────────────────
 
