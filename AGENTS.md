@@ -1,4 +1,6 @@
-- Never commit or push without explicit permission.
+- Before planning anything, check for established standards, conventions, and best
+  practices (project-level, language-level, and industry-wide). Apply to docs,
+  file structure, code, config, everything.
 
 - Keep it minimal — only add what's needed, no premature extras.
 
