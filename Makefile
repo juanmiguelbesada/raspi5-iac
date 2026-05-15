@@ -1,15 +1,20 @@
 # ─── Dependencies ────────────────────────────────────────────
 
-.PHONY: install
+.PHONY: install install-dev
+
 install:
 	brew install ansible kubectl terraform
 	ansible-galaxy collection install community.general
+
+install-dev: install
+	brew install tflint trivy prettier ansible-lint
+	tflint --init
 
 # ─── Ansible ─────────────────────────────────────────────────
 
 ANSIBLE_DIR := ansible
 
-.PHONY: ansible ansible-setup ansible-harden ansible-k3s
+.PHONY: ansible ansible-setup ansible-harden ansible-k3s ansible-lint
 ansible: ansible-setup ansible-harden ansible-k3s
 
 ansible-setup:
@@ -21,11 +26,15 @@ ansible-harden:
 ansible-k3s:
 	cd $(ANSIBLE_DIR) && ansible-playbook playbooks/03-k3s-setup.yml
 
+ansible-lint:
+	ansible-lint ansible/playbooks/
+
 # ─── Terraform ───────────────────────────────────────────────
 
 TERRAFORM_DIR := terraform
 
 .PHONY: terraform terraform-init terraform-plan terraform-apply terraform-destroy terraform-format
+.PHONY: terraform-validate terraform-lint
 
 terraform: terraform-init terraform-plan terraform-apply
 
@@ -43,6 +52,28 @@ terraform-destroy:
 
 terraform-format:
 	terraform -chdir=$(TERRAFORM_DIR) fmt
+
+terraform-validate:
+	terraform -chdir=$(TERRAFORM_DIR) validate
+
+terraform-lint:
+	tflint --chdir=$(TERRAFORM_DIR) --format compact
+
+# ─── Code Quality ────────────────────────────────────────────
+
+.PHONY: format format-fix lint security-check
+
+format:
+	prettier --check .
+	terraform -chdir=$(TERRAFORM_DIR) fmt -check
+
+format-fix: terraform-format
+	prettier --write .
+
+security-check:
+	trivy config terraform/ apps/
+
+lint: terraform-validate ansible-lint terraform-lint security-check
 
 # ─── ArgoCD ──────────────────────────────────────────────────
 
