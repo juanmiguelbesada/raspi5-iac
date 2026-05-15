@@ -13,7 +13,7 @@ ArgoCD ──► syncs apps/ → creates deployments, services, ingresses
 ## Local setup
 
 ```bash
-make install                  # brew + ansible-galaxy deps
+make install                  # brew + ansible-galaxy deps + Docker lint image
 cp terraform/terraform.tfvars.example terraform/terraform.tfvars
 # Edit terraform.tfvars → add your GitHub PAT (repo:contents=read)
 ```
@@ -26,6 +26,11 @@ cp terraform/terraform.tfvars.example terraform/terraform.tfvars
 | Deploy ArgoCD      | `make terraform`                            | Init → plan → apply (installs ArgoCD on k3s) |
 | Get admin password | `make argocd-password`                      | Prints ArgoCD admin password                 |
 | Open UI            | `open http://argocd.192.168.1.155.sslip.io` | ArgoCD dashboard                             |
+| Lint all           | `make lint`                                 | Runs format, validate, lint, security checks |
+| Format check       | `make format`                               | Prettier + terraform fmt (read-only)         |
+| Format fix         | `make format-fix`                           | Writes fixed formatting                      |
+
+> **Note:** Lint / format commands run inside a Docker image (`raspi5-dev`). Build it with `make build` or `make install-dev`.
 
 ## Add a new app
 
