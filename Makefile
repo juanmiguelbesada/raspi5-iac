@@ -1,14 +1,20 @@
 # ─── Dependencies ────────────────────────────────────────────
 
-.PHONY: install install-dev
+.PHONY: install install-dev build
 
 install:
 	brew install ansible kubectl terraform
 	ansible-galaxy collection install community.general
 
 install-dev: install
-	brew install tflint trivy prettier ansible-lint
-	tflint --init
+	brew install docker
+	$(MAKE) build
+
+build:
+	docker build -t $(DOCKER_IMAGE) .
+
+DOCKER_IMAGE := raspi5-dev
+DOCKER_RUN  := docker run --rm -v $(PWD):/workspace -w /workspace $(DOCKER_IMAGE)
 
 # ─── Ansible ─────────────────────────────────────────────────
 
@@ -27,7 +33,7 @@ ansible-k3s:
 	cd $(ANSIBLE_DIR) && ansible-playbook playbooks/03-k3s-setup.yml
 
 ansible-lint:
-	ansible-lint ansible/playbooks/
+	$(DOCKER_RUN) ansible-lint ansible/playbooks/
 
 # ─── Terraform ───────────────────────────────────────────────
 
@@ -54,26 +60,26 @@ terraform-format:
 	terraform -chdir=$(TERRAFORM_DIR) fmt
 
 terraform-validate:
-	terraform -chdir=$(TERRAFORM_DIR) validate
+	$(DOCKER_RUN) sh -c "cd terraform && terraform init -backend=false && terraform validate"
 
 terraform-lint:
-	tflint --chdir=$(TERRAFORM_DIR) --format compact
+	$(DOCKER_RUN) sh -c "cd terraform && tflint --init && tflint --format compact"
 
 # ─── Code Quality ────────────────────────────────────────────
 
 .PHONY: format format-fix lint security-check
 
 format:
-	prettier --check .
-	terraform -chdir=$(TERRAFORM_DIR) fmt -check
+	$(DOCKER_RUN) prettier --check .
+	$(DOCKER_RUN) terraform fmt -check -recursive
 
 format-fix: terraform-format
-	prettier --write .
+	$(DOCKER_RUN) prettier --write .
 
 security-check:
-	trivy config .
+	$(DOCKER_RUN) trivy config terraform/ apps/
 
-lint: terraform-validate ansible-lint terraform-lint security-check
+lint: format terraform-validate ansible-lint terraform-lint security-check
 
 # ─── ArgoCD ──────────────────────────────────────────────────
 

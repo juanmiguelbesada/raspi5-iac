@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: hashicorp/setup-terraform@v4
       - run: terraform -chdir=terraform init -backend=false
-      - run: make terraform-validate
+      - run: terraform -chdir=terraform validate
 
   terraform-lint:
     name: 📐 Terraform Lint
@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: terraform-linters/setup-tflint@v6
       - run: tflint --chdir=terraform --init
-      - run: make terraform-lint
+      - run: tflint --chdir=terraform --format compact
 
   terraform-security:
     name: 🛡️ Terraform Security
@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: aquasecurity/setup-trivy@v0.2.6
-      - run: make security-check
+      - run: trivy config .
 
   # ─── Ansible ─────────────────────────────────────────────────
 
@@ -46,7 +46,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: pip install ansible-lint
       - run: ansible-galaxy collection install community.general ansible.posix
-      - run: make ansible-lint
+      - run: ansible-lint ansible/playbooks/
 
   # ─── General ─────────────────────────────────────────────────
 
@@ -58,7 +58,7 @@ jobs:
       - uses: actions/setup-node@v5
       - run: npm install -g prettier
       - uses: hashicorp/setup-terraform@v4
-      - run: make format
+      - run: prettier --check . && terraform fmt -check -recursive
 
   conventional-commit:
     name: ✅ Conventional Commit
