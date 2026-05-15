@@ -8,11 +8,36 @@ on:
   push:
     branches: [main]
 
-# ─── Terraform ───────────────────────────────────────────────
+env:
+  CLICOLOR_FORCE: 1
 
 jobs:
+  changes:
+    name: 🔍 Detect Changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      terraform: ${{ steps.filter.outputs.terraform }}
+      ansible: ${{ steps.filter.outputs.ansible }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            terraform:
+              - 'terraform/**'
+            ansible:
+              - 'ansible/**'
+
+  # ─── Terraform ───────────────────────────────────────────────
+
   terraform-validate:
     name: 🔍 Terraform Validate
+    needs: changes
+    if: needs.changes.outputs.terraform == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -22,6 +47,8 @@ jobs:
 
   terraform-lint:
     name: 📐 Terraform Lint
+    needs: changes
+    if: needs.changes.outputs.terraform == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -31,6 +58,8 @@ jobs:
 
   terraform-security:
     name: 🛡️ Terraform Security
+    needs: changes
+    if: needs.changes.outputs.terraform == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -41,6 +70,8 @@ jobs:
 
   ansible-lint:
     name: 📜 Ansible Lint
+    needs: changes
+    if: needs.changes.outputs.ansible == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
