@@ -35,7 +35,7 @@ metadata:
 spec:
   generators:
     - git:                      # git directory generator
-        repoURL: https://github.com/juanmiguelbesada/raspi5.git
+        repoURL: https://github.com/juanmiguelbesada/raspi5-iac.git
         revision: HEAD
         directories:
           - path: apps/*        # match every subdirectory under apps/
@@ -45,7 +45,7 @@ spec:
     spec:
       project: default
       source:                   # where manifests live
-        repoURL: https://github.com/juanmiguelbesada/raspi5.git
+        repoURL: https://github.com/juanmiguelbesada/raspi5-iac.git
         targetRevision: HEAD
         path: "{{path}}"        # e.g. apps/hello-world
       destination:              # where to deploy

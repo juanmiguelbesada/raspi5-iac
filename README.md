@@ -1,4 +1,4 @@
-# Raspi5 homelab
+# JuanMi's Raspi5 IaC
 
 Single source of truth for my Raspberry Pi 5 — k3s cluster with GitOps.
 

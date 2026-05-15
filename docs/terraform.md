@@ -147,7 +147,7 @@ resource "kubernetes_secret_v1" "repo_raspi5" {
     namespace = "argocd"
   }
   data = {
-    url      = "https://github.com/juanmiguelbesada/raspi5.git"
+    url      = "https://github.com/juanmiguelbesada/raspi5-iac.git"
     password = var.github_token
   }
 }
@@ -185,7 +185,7 @@ Use locals to avoid repeating an expression across resources — they're compute
 ```hcl
 locals {
   domain   = "192.168.1.155.sslip.io"                  # computed once, used many times
-  repo_url = "https://github.com/juanmiguelbesada/raspi5.git"  # used by ArgoCD repo secret + ApplicationSet
+  repo_url = "https://github.com/juanmiguelbesada/raspi5-iac.git"  # used by ArgoCD repo secret + ApplicationSet
 }
 
 resource "helm_release" "argocd" {

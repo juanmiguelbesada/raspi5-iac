@@ -11,7 +11,7 @@ resource "helm_release" "error_pages" {
       htmlTemplate = {
         name = "app-down"
       }
-      homepageUrl = "https://${local.public_domain}"
+      homepageUrl      = "https://${local.public_domain}"
       sendSameHttpCode = true
     }
   })]
