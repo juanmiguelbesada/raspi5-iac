@@ -1,0 +1,7 @@
+---
+skip_list:
+  - yaml[truthy]
+  - name[casing]
+  - command-instead-of-module
+  - shell[pipefail]
+  - ignore-errors
