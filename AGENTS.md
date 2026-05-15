@@ -2,6 +2,8 @@
   practices (project-level, language-level, and industry-wide). Apply to docs,
   file structure, code, config, everything.
 
+- Never commit or push without explicit permission.
+
 - Keep it minimal — only add what's needed, no premature extras.
 
 - Default unless specified, needed, or known bad-practice — applies to
