@@ -1,0 +1,8 @@
+---
+skip_list:
+  - yaml[truthy]
+  - name[casing]
+  - command-instead-of-module
+  - risky-shell-pipe
+  - key-order[task]
+  - ignore-errors

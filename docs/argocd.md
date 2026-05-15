@@ -29,32 +29,32 @@ resource it creates looks like this:
 ```yaml
 # One ApplicationSet that generates one Application per directory under apps/
 apiVersion: argoproj.io/v1alpha1
-kind: ApplicationSet            # template-based Application generator
+kind: ApplicationSet # template-based Application generator
 metadata:
   name: apps
 spec:
   generators:
-    - git:                      # git directory generator
+    - git: # git directory generator
         repoURL: https://github.com/juanmiguelbesada/raspi5-iac.git
         revision: HEAD
         directories:
-          - path: apps/*        # match every subdirectory under apps/
+          - path: apps/* # match every subdirectory under apps/
   template:
     metadata:
-      name: "{{path.basename}}" # app name = directory name (e.g. hello-world)
+      name: '{{path.basename}}' # app name = directory name (e.g. hello-world)
     spec:
       project: default
-      source:                   # where manifests live
+      source: # where manifests live
         repoURL: https://github.com/juanmiguelbesada/raspi5-iac.git
         targetRevision: HEAD
-        path: "{{path}}"        # e.g. apps/hello-world
-      destination:              # where to deploy
+        path: '{{path}}' # e.g. apps/hello-world
+      destination: # where to deploy
         server: https://kubernetes.default.svc
-        namespace: "{{path.basename}}" # namespace = directory name
+        namespace: '{{path.basename}}' # namespace = directory name
       syncPolicy:
         automated:
-          prune: true           # delete resources removed from Git
-          selfHeal: true        # revert manual changes to match Git
+          prune: true # delete resources removed from Git
+          selfHeal: true # revert manual changes to match Git
         syncOptions:
           - CreateNamespace=true
 ```
@@ -73,6 +73,6 @@ to any of those directories, ArgoCD detects it and tries to match the cluster
 state with what's in Git. This process is called **Sync**.
 
 You can tweak how ArgoCD behaves during syncs with policies and options.
+
 - **Policies** control the automated behaviour [sync docs](https://argo-cd.readthedocs.io/en/stable/user-guide/automated-sync/)
 - **Options** control how manifests are applied [sync options](https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/)
-

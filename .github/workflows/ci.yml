@@ -1,0 +1,73 @@
+# ─── Continuous Integration ───────────────────────────────────
+
+name: 🚀 Continuous Integration
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# ─── Terraform ───────────────────────────────────────────────
+
+jobs:
+  terraform-validate:
+    name: 🔍 Terraform Validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: hashicorp/setup-terraform@v4
+      - run: terraform -chdir=terraform init -backend=false
+      - run: make terraform-validate
+
+  terraform-lint:
+    name: 📐 Terraform Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: terraform-linters/setup-tflint@v6
+      - run: tflint --chdir=terraform --init
+      - run: make terraform-lint
+
+  terraform-security:
+    name: 🛡️ Terraform Security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aquasecurity/setup-trivy@v0.2.6
+      - run: make security-check
+
+  # ─── Ansible ─────────────────────────────────────────────────
+
+  ansible-lint:
+    name: 📜 Ansible Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install ansible-lint
+      - run: ansible-galaxy collection install community.general ansible.posix
+      - run: make ansible-lint
+
+  # ─── General ─────────────────────────────────────────────────
+
+  format-check:
+    name: 🚨 Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+      - run: npm install -g prettier
+      - uses: hashicorp/setup-terraform@v4
+      - run: make format
+
+  conventional-commit:
+    name: ✅ Conventional Commit
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: amannn/action-semantic-pull-request@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

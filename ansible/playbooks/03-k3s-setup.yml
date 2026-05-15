@@ -33,7 +33,7 @@
     - name: Ensure UFW allows k3s API server
       community.general.ufw:
         rule: allow
-        port: "6443"
+        port: '6443'
         proto: tcp
 
     - name: Install k3s
@@ -44,7 +44,7 @@
     - name: Ensure kubeconfig is readable by juanmi
       ansible.builtin.file:
         path: /etc/rancher/k3s/k3s.yaml
-        mode: "644"
+        mode: '644'
 
     - name: Fetch kubeconfig to local machine and patch server IP
       block:
@@ -58,7 +58,7 @@
           ansible.builtin.replace:
             path: /tmp/raspi5-k3s.yaml
             regexp: "https://127\\.0\\.0\\.1:6443"
-            replace: "https://192.168.1.155:6443"
+            replace: 'https://192.168.1.155:6443'
           delegate_to: localhost
           become: no
 
@@ -66,7 +66,7 @@
           ansible.builtin.file:
             path: ~/.kube
             state: directory
-            mode: "0755"
+            mode: '0755'
           delegate_to: localhost
           become: no
 
@@ -74,7 +74,7 @@
           ansible.builtin.copy:
             src: /tmp/raspi5-k3s.yaml
             dest: ~/.kube/config
-            mode: "0600"
+            mode: '0600'
             backup: yes
           delegate_to: localhost
           become: no

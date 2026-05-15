@@ -28,7 +28,7 @@
       ansible.builtin.copy:
         dest: /etc/sudoers.d/juanmi
         content: "juanmi ALL=(ALL) NOPASSWD: ALL\n"
-        mode: "440"
+        mode: '440'
         validate: /usr/sbin/visudo -csf %s
 
   handlers:
