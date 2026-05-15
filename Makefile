@@ -1,13 +1,10 @@
 # ─── Dependencies ────────────────────────────────────────────
 
-.PHONY: install install-dev build
+.PHONY: install build
 
 install:
-	brew install ansible kubectl terraform
+	brew install ansible kubectl terraform docker
 	ansible-galaxy collection install community.general
-
-install-dev: install
-	brew install docker
 	$(MAKE) build
 
 build:
