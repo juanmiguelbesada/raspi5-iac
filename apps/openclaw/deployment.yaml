@@ -14,24 +14,8 @@ spec:
         app: openclaw
     spec:
       initContainers:
-        - name: inject-config
+        - name: ensure-config
           image: busybox:1.36
-          env:
-            - name: OPENCODE_ZEN_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: openclaw-secrets
-                  key: opencode-zen-api-key
-            - name: OPENROUTER_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: openclaw-secrets
-                  key: openrouter-api-key
-            - name: TELEGRAM_BOT_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: openclaw-secrets
-                  key: telegram-bot-token
           volumeMounts:
             - name: config-tmpl
               mountPath: /config-tmpl
@@ -41,11 +25,29 @@ spec:
             - /bin/sh
             - -c
             - |
-              sed "s/__OPENCODE_ZEN_API_KEY__/$OPENCODE_ZEN_KEY/g; s/__OPENROUTER_API_KEY__/$OPENROUTER_KEY/g; s/__TELEGRAM_BOT_TOKEN__/$TELEGRAM_BOT_TOKEN/g" \
-                /config-tmpl/openclaw.json > /home/node/.openclaw/openclaw.json
+              if [ ! -f /home/node/.openclaw/openclaw.json ] || \
+                 grep -q '__OPENCODE_ZEN_API_KEY__' /home/node/.openclaw/openclaw.json 2>/dev/null; then
+                cp /config-tmpl/openclaw.json /home/node/.openclaw/openclaw.json
+              fi
       containers:
         - name: gateway
           image: ghcr.io/openclaw/openclaw:latest
+          env:
+            - name: OPENCODE_ZEN_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: openclaw-secrets
+                  key: opencode-zen-api-key
+            - name: OPENROUTER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: openclaw-secrets
+                  key: openrouter-api-key
+            - name: TELEGRAM_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: openclaw-secrets
+                  key: telegram-bot-token
           args:
             - node
             - openclaw.mjs
