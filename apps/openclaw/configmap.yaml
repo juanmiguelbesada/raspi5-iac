@@ -6,11 +6,19 @@ metadata:
 data:
   openclaw.json: |
     {
-      "providers": {
-        "openai": [
-          { "name": "opencode-zen", "baseUrl": "https://opencode.ai/zen/v1", "apiKey": "__OPENCODE_ZEN_API_KEY__" },
-          { "name": "openrouter", "baseUrl": "https://openrouter.ai/api/v1", "apiKey": "__OPENROUTER_API_KEY__" }
-        ]
+      "models": {
+        "providers": {
+          "opencode-zen": {
+            "baseUrl": "https://opencode.ai/zen/v1",
+            "apiKey": "__OPENCODE_ZEN_API_KEY__",
+            "api": "openai-completions"
+          },
+          "openrouter": {
+            "baseUrl": "https://openrouter.ai/api/v1",
+            "apiKey": "__OPENROUTER_API_KEY__",
+            "api": "openai-completions"
+          }
+        }
       },
       "agents": {
         "defaults": {
