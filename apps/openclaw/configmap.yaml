@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openclaw-config
+  namespace: openclaw
+data:
+  openclaw.json: |
+    {
+      "providers": {
+        "openai": [
+          { "name": "opencode-zen", "baseUrl": "https://opencode.ai/zen/v1", "apiKey": "__OPENCODE_ZEN_API_KEY__" },
+          { "name": "openrouter", "baseUrl": "https://openrouter.ai/api/v1", "apiKey": "__OPENROUTER_API_KEY__" }
+        ]
+      },
+      "agents": {
+        "defaults": {
+          "model": {
+            "primary": "opencode-zen/big-pickle",
+            "fallbacks": ["openrouter/kimi-k2.6"]
+          }
+        }
+      },
+      "channels": {
+        "telegram": {
+          "token": "__TELEGRAM_BOT_TOKEN__"
+        }
+      },
+      "gateway": {
+        "bind": "lan",
+        "port": 18789
+      }
+    }
