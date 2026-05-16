@@ -11,12 +11,18 @@ data:
           "opencode-zen": {
             "baseUrl": "https://opencode.ai/zen/v1",
             "apiKey": "__OPENCODE_ZEN_API_KEY__",
-            "api": "openai-completions"
+            "api": "openai-completions",
+            "models": [
+              { "id": "big-pickle", "name": "Big Pickle" }
+            ]
           },
           "openrouter": {
             "baseUrl": "https://openrouter.ai/api/v1",
             "apiKey": "__OPENROUTER_API_KEY__",
-            "api": "openai-completions"
+            "api": "openai-completions",
+            "models": [
+              { "id": "kimi-k2.6", "name": "Kimi K2.6" }
+            ]
           }
         }
       },
