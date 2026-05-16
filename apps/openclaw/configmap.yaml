@@ -36,7 +36,8 @@ data:
       },
       "channels": {
         "telegram": {
-          "token": "__TELEGRAM_BOT_TOKEN__"
+          "enabled": true,
+          "botToken": "__TELEGRAM_BOT_TOKEN__"
         }
       },
       "gateway": {
