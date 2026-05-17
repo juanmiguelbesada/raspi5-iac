@@ -3,8 +3,12 @@ kind: Deployment
 metadata:
   name: openclaw
   namespace: openclaw
+  labels:
+    app: openclaw
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: openclaw
@@ -13,50 +17,95 @@ spec:
       labels:
         app: openclaw
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       initContainers:
-        - name: ensure-config
-          image: busybox:1.36
-          volumeMounts:
-            - name: config-tmpl
-              mountPath: /config-tmpl
-            - name: data
-              mountPath: /home/node/.openclaw
+        - name: init-config
+          image: busybox:1.37
           command:
-            - /bin/sh
+            - sh
             - -c
             - |
-              if [ ! -f /home/node/.openclaw/openclaw.json ] || \
-                 grep -q '__OPENCODE_ZEN_API_KEY__' /home/node/.openclaw/openclaw.json 2>/dev/null; then
-                cp /config-tmpl/openclaw.json /home/node/.openclaw/openclaw.json
-              fi
+              cp /config/openclaw.json /home/node/.openclaw/openclaw.json
+              mkdir -p /home/node/.openclaw/workspace
+              cp /config/AGENTS.md /home/node/.openclaw/workspace/AGENTS.md
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+          resources:
+            requests:
+              memory: 32Mi
+              cpu: 50m
+            limits:
+              memory: 64Mi
+              cpu: 100m
+          volumeMounts:
+            - name: data
+              mountPath: /home/node/.openclaw
+            - name: config
+              mountPath: /config
       containers:
         - name: gateway
-          image: ghcr.io/openclaw/openclaw:latest
+          image: ghcr.io/openclaw/openclaw:slim
+          command:
+            - node
+            - /app/dist/index.js
+            - gateway
+            - run
           env:
+            - name: HOME
+              value: /home/node
+            - name: OPENCLAW_CONFIG_DIR
+              value: /home/node/.openclaw
+            - name: NODE_ENV
+              value: production
             - name: OPENCODE_ZEN_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: openclaw-secrets
                   key: opencode-zen-api-key
+                  optional: true
             - name: OPENROUTER_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: openclaw-secrets
                   key: openrouter-api-key
+                  optional: true
             - name: TELEGRAM_BOT_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: openclaw-secrets
                   key: telegram-bot-token
-          args:
-            - node
-            - openclaw.mjs
-            - gateway
-            - --bind
-            - lan
-            - --allow-unconfigured
+                  optional: true
+            - name: OPENCLAW_GATEWAY_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: openclaw-secrets
+                  key: openclaw-gateway-token
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
           ports:
-            - containerPort: 18789
+            - name: gateway
+              containerPort: 18789
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 250m
+            limits:
+              memory: 2Gi
+              cpu: "1"
           livenessProbe:
             httpGet:
               path: /healthz
@@ -72,10 +121,14 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /home/node/.openclaw
+            - name: tmp-volume
+              mountPath: /tmp
       volumes:
-        - name: config-tmpl
+        - name: config
           configMap:
             name: openclaw-config
         - name: data
           persistentVolumeClaim:
             claimName: openclaw-data
+        - name: tmp-volume
+          emptyDir: {}
