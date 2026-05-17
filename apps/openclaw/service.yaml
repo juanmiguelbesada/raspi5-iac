@@ -3,10 +3,12 @@ kind: Service
 metadata:
   name: openclaw
   namespace: openclaw
+  labels:
+    app: openclaw
 spec:
   selector:
     app: openclaw
   ports:
-    - port: 18789
+    - name: gateway
+      port: 18789
       targetPort: 18789
-  type: ClusterIP

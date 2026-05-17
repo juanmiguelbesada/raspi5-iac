@@ -3,7 +3,13 @@ kind: ConfigMap
 metadata:
   name: openclaw-config
   namespace: openclaw
+  labels:
+    app: openclaw
 data:
+  AGENTS.md: |
+    # OpenClaw Assistant
+
+    You are a helpful AI assistant running in Kubernetes.
   openclaw.json: |
     {
       "models": {
@@ -41,7 +47,6 @@ data:
         }
       },
       "gateway": {
-        "bind": "lan",
-        "port": 18789
+        "bind": "lan"
       }
     }
