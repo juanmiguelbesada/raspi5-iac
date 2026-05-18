@@ -267,55 +267,69 @@ resource "kubernetes_secret_v1" "repo_raspi5" {
 
 ### Apps (`apps.tf`)
 
-This resource tells ArgoCD to deploy everything in `apps/`. The chart creates
-an **ApplicationSet** with a **git directory generator** — one `Application`
-per subdirectory. See [`docs/argocd.md`](argocd.md) for more details.
+This resource tells ArgoCD to deploy everything in `apps/`. A
+[`kubernetes_manifest`](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/manifest)
+resource creates an **ApplicationSet** with a **git directory generator** —
+one `Application` per subdirectory.
+
+Using `kubernetes_manifest` (instead of a Helm release wrapping the
+`argocd-apps` chart) means the ApplicationSet is a **first-class Terraform
+resource** — if it's deleted from the cluster, `terraform apply` detects the
+drift and recreates it immediately. See [`docs/argocd.md`](argocd.md) for more
+details.
 
 ```hcl
-resource "helm_release" "apps" {
-  depends_on = [helm_release.argocd, kubernetes_secret_v1.repo_raspi5]  # wait for ArgoCD + repo secret
-  name       = "apps"
-  repository = "https://argoproj.github.io/argo-helm"
-  chart      = "argocd-apps"                           # creates Application/ApplicationSet resources
-  namespace  = "argocd"
+resource "kubernetes_manifest" "apps" {
+  depends_on = [helm_release.argocd, kubernetes_secret_v1.repo_raspi5]  # CRD + repo secret must exist first
 
-  values = [yamlencode({
-    applicationSets = {                                # one or more ApplicationSets to generate
-      apps = {                                         # name of the ApplicationSet resource
-        generators = [{                                # list of generators (produce parameter sets)
-          git = {                                      # git directory generator: scans repo dirs
-            repoURL      = local.repo_url               # from locals in main.tf
-            revision     = "HEAD"
-            directories  = [{ path = "apps/*" }]       # every subdirectory under apps/
+  manifest = {
+    apiVersion = "argoproj.io/v1alpha1"
+    kind       = "ApplicationSet"
+
+    metadata = {
+      name      = "apps"
+      namespace = "argocd"
+    }
+
+    spec = {
+      generators = [{                                # list of generators (produce parameter sets)
+        git = {                                      # git directory generator: scans repo dirs
+          repoURL     = local.repo_url                # from locals in main.tf
+          revision    = "HEAD"
+          directories = [{ path = "apps/*" }]        # every subdirectory under apps/
+        }
+      }]
+
+      template = {                                   # parameterized Application template
+        metadata = {
+          name = "{{path.basename}}"                 # e.g. "hello-world" from apps/hello-world
+        }
+
+        spec = {
+          project = "default"
+
+          source = {
+            repoURL        = local.repo_url           # from locals in main.tf
+            targetRevision = "HEAD"
+            path           = "{{path}}"              # e.g. "apps/hello-world"
           }
-        }]
-        template = {                                   # parameterized Application template
-          metadata = {
-            name = "{{path.basename}}"                 # e.g. "hello-world" from apps/hello-world
+
+          destination = {
+            server    = "https://kubernetes.default.svc"
+            namespace = "{{path.basename}}"          # one namespace per app, matching dir name
           }
-          spec = {
-            project = "default"
-            source = {
-              repoURL        = local.repo_url           # from locals in main.tf
-              targetRevision = "HEAD"
-              path           = "{{path}}"              # e.g. "apps/hello-world"
+
+          syncPolicy = {
+            automated = {
+              prune    = true                        # delete K8s resources removed from Git
+              selfHeal = true                        # revert manual changes to match Git
             }
-            destination = {
-              server    = "https://kubernetes.default.svc"
-              namespace = "{{path.basename}}"          # one namespace per app, matching dir name
-            }
-            syncPolicy = {
-              automated = {
-                prune    = true                        # delete K8s resources removed from Git
-                selfHeal = true                        # revert manual changes to match Git
-              }
-              syncOptions = ["CreateNamespace=true"]   # auto-create namespace if missing
-            }
+            syncOptions = ["CreateNamespace=true"]   # auto-create namespace if missing
           }
         }
       }
     }
-  })]
+  }
 }
 ```
 
