@@ -302,7 +302,7 @@ resource "kubernetes_manifest" "apps" {
 
       template = {                                   # parameterized Application template
         metadata = {
-          name = "{{path.basename}}"                 # e.g. "hello-world" from apps/hello-world
+          name = "{{path.basename}}"                 # e.g. "my-app" from apps/my-app
         }
 
         spec = {
@@ -311,7 +311,7 @@ resource "kubernetes_manifest" "apps" {
           source = {
             repoURL        = local.repo_url           # from locals in main.tf
             targetRevision = "HEAD"
-            path           = "{{path}}"              # e.g. "apps/hello-world"
+            path           = "{{path}}"              # e.g. "apps/my-app"
           }
 
           destination = {

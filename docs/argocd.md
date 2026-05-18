@@ -41,13 +41,13 @@ spec:
           - path: apps/* # match every subdirectory under apps/
   template:
     metadata:
-      name: '{{path.basename}}' # app name = directory name (e.g. hello-world)
+      name: '{{path.basename}}' # app name = directory name (e.g. my-app)
     spec:
       project: default
       source: # where manifests live
         repoURL: https://github.com/juanmiguelbesada/raspi5-iac.git
         targetRevision: HEAD
-        path: '{{path}}' # e.g. apps/hello-world
+        path: '{{path}}' # e.g. apps/my-app
       destination: # where to deploy
         server: https://kubernetes.default.svc
         namespace: '{{path.basename}}' # namespace = directory name

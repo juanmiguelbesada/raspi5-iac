@@ -42,4 +42,3 @@ See [`docs/argocd.md`](docs/argocd.md) for details on how Application discovery 
 ## Access
 
 - **ArgoCD**: `http://argocd.192.168.1.155.sslip.io` (admin / `make argocd-password`)
-- **hello-world**: `http://hello-world.192.168.1.155.sslip.io`
