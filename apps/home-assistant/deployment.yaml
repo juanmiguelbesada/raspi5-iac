@@ -26,22 +26,15 @@ spec:
             - -c
             - |
               if [ ! -f /config/configuration.yaml ]; then
-                echo "default_config:" > /config/configuration.yaml
-                echo "" >> /config/configuration.yaml
-                echo "http:" >> /config/configuration.yaml
-                echo "  use_x_forwarded_for: true" >> /config/configuration.yaml
-                echo "  trusted_proxies:" >> /config/configuration.yaml
-                echo "    - 10.42.0.0/16" >> /config/configuration.yaml
+                cp /config-template/configuration.yaml /config/configuration.yaml
               elif ! grep -q "use_x_forwarded_for" /config/configuration.yaml 2>/dev/null; then
-                echo "" >> /config/configuration.yaml
-                echo "http:" >> /config/configuration.yaml
-                echo "  use_x_forwarded_for: true" >> /config/configuration.yaml
-                echo "  trusted_proxies:" >> /config/configuration.yaml
-                echo "    - 10.42.0.0/16" >> /config/configuration.yaml
+                cat /config-template/http-config.yaml >> /config/configuration.yaml
               fi
           volumeMounts:
             - name: data
               mountPath: /config
+            - name: config
+              mountPath: /config-template
       containers:
         - name: home-assistant
           image: ghcr.io/home-assistant/home-assistant:stable
@@ -77,3 +70,6 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: home-assistant-data
+        - name: config
+          configMap:
+            name: ha-config
