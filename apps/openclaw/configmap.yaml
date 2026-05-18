@@ -51,12 +51,7 @@ data:
         "mode": "local",
         "trustedProxies": ["10.42.0.0/16"],
         "controlUi": {
-          "allowedOrigins": [
-            "http://localhost:18789",
-            "http://127.0.0.1:18789",
-            "http://openclaw.192.168.1.155.sslip.io",
-            "https://openclaw.192.168.1.155.sslip.io"
-          ]
+          "enabled": false
         }
       }
     }
