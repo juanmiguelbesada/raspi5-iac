@@ -13,9 +13,12 @@ resource "kubernetes_manifest" "apps" {
     spec = {
       generators = [{
         git = {
-          repoURL     = local.repo_url
-          revision    = "HEAD"
-          directories = [{ path = "apps/*" }]
+          repoURL  = local.repo_url
+          revision = "HEAD"
+          directories = [
+            { path = "apps/*" },
+            { path = "apps/base", exclude = true },
+          ]
         }
       }]
 
