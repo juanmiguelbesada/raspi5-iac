@@ -5,6 +5,7 @@
 install:
 	brew install ansible kubectl terraform docker
 	ansible-galaxy collection install community.general
+	git config core.hooksPath .githooks
 	$(MAKE) build
 
 build:

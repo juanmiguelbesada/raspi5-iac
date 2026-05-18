@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+
+echo "→ Auto-fixing formatting..."
+make format-fix
+
+echo "→ Staging formatting fixes..."
+git add --update
+
+echo "→ Running lint checks..."
+make lint
