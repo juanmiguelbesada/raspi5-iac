@@ -15,7 +15,10 @@ resource "kubernetes_manifest" "apps" {
         git = {
           repoURL     = local.repo_url
           revision    = "HEAD"
-          directories = [{ path = "apps/*" }]
+          directories = [
+            { path = "apps/*" },
+            { path = "apps/base", exclude = true },
+          ]
         }
       }]
 
