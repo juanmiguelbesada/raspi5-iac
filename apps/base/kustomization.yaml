@@ -7,7 +7,20 @@ labels:
 patches:
   - target:
       kind: Deployment
-    patch: |
+    patch: |-
       - op: add
         path: /spec/revisionHistoryLimit
         value: 2
+  - target:
+      kind: Deployment
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: not-used
+      spec:
+        template:
+          spec:
+            securityContext:
+              seccompProfile:
+                type: RuntimeDefault
