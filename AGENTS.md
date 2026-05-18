@@ -12,7 +12,7 @@
 
 - Use conventional commits: `type(scope): description` (e.g. `feat(ansible): ...`).
   Scope is optional — omit it when changes span multiple areas.
-  Valid scopes: `ansible`, `terraform`, `argocd`, `cloudflare`, `apps`, `docs`, `makefile`, `misc`, `home-assistant`.
+  Valid scopes: `ansible`, `terraform`, `argocd`, `cloudflare`, `docs`, `makefile`, `misc`, or any app directory under `apps/`.
 
 - Don't set any config value that matches its default — skip it entirely.
 
