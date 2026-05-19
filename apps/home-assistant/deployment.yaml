@@ -21,13 +21,7 @@ spec:
       initContainers:
         - name: init-config
           image: busybox:1.37
-          command:
-            - sh
-            - -c
-            - |
-              if [ ! -f /config/configuration.yaml ]; then
-                cp /home-assistant-config/configuration.yaml /config/configuration.yaml
-              fi
+          command: ["sh", "-c", "[ ! -f /config/configuration.yaml ] && cp /home-assistant-config/configuration.yaml /config/configuration.yaml"]
           volumeMounts:
             - name: data
               mountPath: /config
