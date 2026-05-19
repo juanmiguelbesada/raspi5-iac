@@ -15,12 +15,6 @@ variable "cloudflare_account_id" {
   type        = string
 }
 
-variable "opencode_zen_api_key" {
-  description = "OpenCode Zen API key (https://opencode.ai/auth)"
-  type        = string
-  sensitive   = true
-}
-
 variable "openrouter_api_key" {
   description = "OpenRouter API key (https://openrouter.ai/keys)"
   type        = string
