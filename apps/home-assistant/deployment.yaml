@@ -17,6 +17,11 @@ spec:
       labels:
         app: home-assistant
     spec:
+      # hostNetwork enables mDNS/SSDP discovery for local devices (Tapo, Hue, Sonos, etc.)
+      # that rely on multicast packets, which don't cross the Flannel CNI bridge.
+      # https://www.home-assistant.io/installation/kubernetes#options-for-better-compatibility
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       automountServiceAccountToken: false
       initContainers:
         - name: init-config
@@ -36,6 +41,33 @@ spec:
       containers:
         - name: home-assistant
           image: ghcr.io/home-assistant/home-assistant:stable
+          # Command override patches python-kasa's cipher allowlist on startup.
+          # Tapo devices use RSA-1024 self-signed certs with ECDHE-RSA-AES128-GCM-SHA256,
+          # which modern OpenSSL/Python rejects (EE certificate key too weak).
+          # Without this, the SSL handshake fails with SSLV3_ALERT_HANDSHAKE_FAILURE.
+          # https://github.com/home-assistant/core/issues/165645
+          # https://github.com/home-assistant/core/issues/167714
+          # https://github.com/home-assistant/core/issues/167114
+          command:
+            - /bin/sh
+            - -c
+            - |
+              TARGET=$(find /usr/local/lib -name 'sslaestransport.py' -path '*/kasa/*' 2>/dev/null | head -1)
+              if [ -n "$TARGET" ] && ! grep -q 'ECDHE-RSA-AES128-GCM-SHA256' "$TARGET"; then
+                echo "[init] Adding Tapo-compatible cipher to python-kasa transport"
+                python3 -c "
+              TARGET='$TARGET'
+              with open(TARGET) as f:
+                  content = f.read()
+              content = content.replace(
+                  '\"AES256-GCM-SHA384\",\n            \"AES256-SHA256\",',
+                  '\"ECDHE-RSA-AES128-GCM-SHA256\",\n            \"AES256-GCM-SHA384\",\n            \"AES256-SHA256\",'
+              )
+              with open(TARGET, 'w') as f:
+                  f.write(content)
+              "
+              fi
+              exec /init
           env:
             - name: TZ
               value: Europe/Madrid
