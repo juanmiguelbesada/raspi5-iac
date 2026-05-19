@@ -13,8 +13,3 @@ data:
       use_x_forwarded_for: true
       trusted_proxies:
         - 10.42.0.0/16
-  http-config.yaml: |
-    http:
-      use_x_forwarded_for: true
-      trusted_proxies:
-        - 10.42.0.0/16

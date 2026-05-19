@@ -27,8 +27,6 @@ spec:
             - |
               if [ ! -f /config/configuration.yaml ]; then
                 cp /home-assistant-config/configuration.yaml /config/configuration.yaml
-              elif ! grep -q "use_x_forwarded_for" /config/configuration.yaml 2>/dev/null; then
-                cat /home-assistant-config/http-config.yaml >> /config/configuration.yaml
               fi
           volumeMounts:
             - name: data
