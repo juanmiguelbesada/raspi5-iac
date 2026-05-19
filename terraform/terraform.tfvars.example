@@ -1,6 +1,5 @@
 github_token          = "github_pat_..."
 cloudflare_api_token  = "..."  # Cloudflare API token with Tunnel:Edit, DNS:Edit, Zone:Read
 cloudflare_account_id = "..."  # Account ID from Cloudflare dashboard
-opencode_zen_api_key  = "sk-..."  # OpenCode Zen API key (https://opencode.ai/auth)
 openrouter_api_key    = "sk-..."  # OpenRouter API key (https://openrouter.ai/keys)
 telegram_bot_token    = "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"  # Telegram bot token from @BotFather
