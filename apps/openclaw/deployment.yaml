@@ -101,15 +101,17 @@ spec:
               memory: 2Gi
               cpu: "1"
           livenessProbe:
-            httpGet:
-              path: /healthz
-              port: 18789
+            exec:
+              command:
+                - openclaw
+                - health
             initialDelaySeconds: 30
             periodSeconds: 60
           readinessProbe:
-            httpGet:
-              path: /readyz
-              port: 18789
+            exec:
+              command:
+                - openclaw
+                - health
             initialDelaySeconds: 15
             periodSeconds: 30
           volumeMounts:
