@@ -75,7 +75,8 @@ format-fix: terraform-format
 	$(DOCKER_RUN) prettier --write .
 
 security-check:
-	$(DOCKER_RUN) trivy config terraform/ apps/
+	$(DOCKER_RUN) trivy config terraform/
+	$(DOCKER_RUN) trivy config apps/
 
 lint: format terraform-validate ansible-lint terraform-lint security-check
 
