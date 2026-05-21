@@ -9,4 +9,3 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingressroute.yaml
-  - redirect-middleware.yaml

@@ -5,12 +5,10 @@ metadata:
   namespace: openclaw
 spec:
   entryPoints:
-    - websecure
+    - web
   routes:
     - match: Host(`openclaw.192.168.1.155.sslip.io`)
       kind: Rule
       services:
         - name: openclaw
           port: 18789
-  tls:
-    secretName: openclaw-tls
