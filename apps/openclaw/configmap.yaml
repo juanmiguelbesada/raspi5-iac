@@ -55,8 +55,7 @@ data:
         },
         "controlUi": {
           "enabled": true,
-          "allowInsecureAuth": true,
-          "allowedOrigins": ["http://openclaw.192.168.1.155.sslip.io"]
+          "allowedOrigins": ["https://openclaw.juanmiguelbesada.com"]
         }
       }
     }
