@@ -21,5 +21,3 @@
 
 - Docs code snippets should include useful inline comments explaining what each
   part does.
-
-
