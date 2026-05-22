@@ -2,7 +2,7 @@
   practices (project-level, language-level, and industry-wide). Apply to docs,
   file structure, code, config, everything.
 
-- Never commit or push without explicit permission.
+- Never commit, push, create a pull request, or merge without explicit permission. Wait for confirmation on every step.
 
 - Keep it minimal — only add what's needed, no premature extras.
 
@@ -21,6 +21,3 @@
 
 - Docs code snippets should include useful inline comments explaining what each
   part does.
-
-- Work through pull requests: create a branch, push, open a PR, and request
-  review. Never commit or push directly to main.
