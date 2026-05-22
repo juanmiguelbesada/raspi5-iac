@@ -7,7 +7,7 @@ spec:
   entryPoints:
     - web
   routes:
-    - match: Host(`openclaw.192.168.1.155.sslip.io`)
+    - match: Host(`openclaw.juanmiguelbesada.com`)
       kind: Rule
       services:
         - name: openclaw
