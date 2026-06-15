@@ -23,3 +23,7 @@
 
 - Docs code snippets should include useful inline comments explaining what each
   part does.
+
+- When something fails (e.g. Docker daemon down, network issue, missing tool),
+  don't silently fall back to a workaround. Ask the user first — they may
+  prefer to fix the underlying issue (e.g. start Docker) rather than skip it.
