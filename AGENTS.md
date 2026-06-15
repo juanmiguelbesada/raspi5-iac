@@ -2,7 +2,9 @@
   practices (project-level, language-level, and industry-wide). Apply to docs,
   file structure, code, config, everything.
 
-- Never commit, push, create a pull request, or merge without explicit permission. Wait for confirmation on every step.
+- Work through pull requests: create a branch, push, open a PR, and request
+  review. Never commit or push directly to main. Confirm before every step:
+  commit/push, creating the PR, and merging.
 
 - Keep it minimal — only add what's needed, no premature extras.
 
@@ -21,3 +23,7 @@
 
 - Docs code snippets should include useful inline comments explaining what each
   part does.
+
+- When something fails (e.g. Docker daemon down, network issue, missing tool),
+  don't silently fall back to a workaround. Ask the user first — they may
+  prefer to fix the underlying issue (e.g. start Docker) rather than skip it.
